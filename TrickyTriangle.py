@@ -11,11 +11,17 @@ class Board:
         self.map = []
         self.empty_positions = []
         self.create_board_map()
+        self.move_directions = ['LEFT', 'RIGHT', 'UP-LEFT', 'UP-RIGHT', 'DOWN-LEFT', 'DOWN-RIGHT']
 
-    def create_board_map(self):
+    def create_board_map(self, fixed_position=None):
         # Set a random board position as empty
         # Note coder is expected to use off-the-shelf components for solved problems like random numbers
-        self.empty_positions.append(random.randint(0, self.size-1))
+        if fixed_position is None:
+            self.empty_positions.append(random.randint(0, self.size-1))
+        else:
+            if fixed_position > self.size:
+                raise Exception('fixed_position variable greater than board size. Try again')
+            self.empty_positions.append(fixed_position)
         print(self.empty_positions[0])
         counter = 0
         for r in range(0, self.side_length ):
@@ -33,9 +39,37 @@ class Board:
         for i in self.map:
             print(*i)  # Pythonic syntax to unpack lists
 
-
     def check_empty(self, position):
         return 1 if position in self.empty_positions else 0
+
+    def check_spot(self, operand_left, operator, operand_right):
+        return operator(operand_left, operand_right)
+
+    def check_move(self, item):
+        index, row, column, occupied_status = item
+        if occupied_status:
+            for i in self.move_directions:
+                if i == 'LEFT':
+                    if self.check_spot((column - 2), ge, 0):
+                        log_it(RC(row, column) + " left ok")
+                if i == 'RIGHT':
+                    if self.check_spot((column + 2), le, row):
+                        log_it(RC(row, column) + " right ok")
+                if i == 'UP-LEFT':
+                    if self.check_spot((column - 2), ge, 0):
+                        if self.check_spot((row - 2), ge, 0):
+                            log_it(RC(row, column) + " up-left ok")
+                if i == 'UP-RIGHT':
+                    if row >= 2:
+                        if self.check_spot((column + 2), le, row):
+                            log_it(RC(row, column) + " up-right ok")
+                # Downward moves are only concerned with rows as column numbers increase
+                if i == 'DOWN-LEFT':
+                    if row + 2 < self.side_length:
+                        log_it(RC(row, column) + " down-left ok")
+                if i == 'DOWN-RIGHT':
+                    if row + 2 < self.side_length:
+                        log_it(RC(row, column) + " down-right ok")
 
 
 
@@ -56,34 +90,7 @@ def log_it(message):
 #     return operator(operand_left, operand_right)
 
 
-def check_spot(operand_left, operator, operand_right):
-    return operator(operand_left, operand_right)
 
-
-def check_move(item):
-    index, row, column, occupied_status = item
-    if occupied_status:
-        for i in move_directions:
-            if i == 'LEFT':
-                if check_spot((column-2), ge, 0):
-                    log_it(RC(row, column) + " left ok")
-            if i == 'RIGHT':
-                if check_spot((column + 2), le, row):
-                    log_it(RC(row, column) + " right ok")
-            if i == 'UP-LEFT':
-                if check_spot((column - 2), ge, 0):
-                    if check_spot((row - 2), ge, 0):
-                        log_it(RC(row, column) + " up-left ok")
-            if i == 'UP-RIGHT':
-                if row >= 2:
-                    if check_spot((column + 2), le, row):
-                        log_it(RC(row, column) + " up-right ok")
-            if i == 'DOWN-LEFT':
-                if row + 2 < b.side_length:
-                    log_it(RC(row, column) + " down-left ok")
-            if i == 'DOWN-RIGHT':
-                if row + 2 < b.side_length:
-                    log_it(RC(row, column) + " down-right ok")
 
 b = Board(5)
 b.dump_map()
@@ -92,11 +99,10 @@ b.dump_map()
 moves = []
 win_ledger = []  # Stores a list of games (i.e. as many moves lists that end with one peg left as are computed)
 
-move_directions = ['LEFT', 'RIGHT', 'UP-LEFT', 'UP-RIGHT', 'DOWN-LEFT', 'DOWN-RIGHT']
 
 for x in b.map:
     for item in x:
-        check_move(item)
+        b.check_move(item)
 #
 #    position, row, occupied = x
     # for y in range(0, len(x)+1):
