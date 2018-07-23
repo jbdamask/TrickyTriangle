@@ -49,7 +49,6 @@ class Board:
     # TODO This tightly couples holes and pegs. Not sure that's the best approach
     def add_pegs(self, empty_position=None):
         # Set a random board position as empty
-        # Note coder is expected to use off-the-shelf components for solved problems like random numbers
         empty = -1
         if empty_position is None:
             empty = random.randint(0, self.size - 1)
