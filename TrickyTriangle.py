@@ -61,7 +61,6 @@ def check_spot(operand_left, operator, operand_right):
 
 
 def check_move(item):
-   # print(item)
     index, row, column, occupied_status = item
     if occupied_status:
         for i in move_directions:
@@ -76,16 +75,18 @@ def check_move(item):
                     if check_spot((row - 2), ge, 0):
                         log_it(RC(row, column) + " up-left ok")
             if i == 'UP-RIGHT':
-                if check_spot((column + 2), le, row):
-                    if check_spot((row - 2), le, row):
+                if row >= 2:
+                    if check_spot((column + 2), le, row):
                         log_it(RC(row, column) + " up-right ok")
             if i == 'DOWN-LEFT':
-               pass
+                if row + 2 < b.side_length:
+                    log_it(RC(row, column) + " down-left ok")
             if i == 'DOWN-RIGHT':
-                pass
+                if row + 2 < b.side_length:
+                    log_it(RC(row, column) + " down-right ok")
 
 b = Board(5)
-#b.dump_map()
+b.dump_map()
 # Stores individual moves. Originating positions are stored in the odd elements and destinations are in even
 # A full game will in in a list of size (b.size - 1)*2
 moves = []
