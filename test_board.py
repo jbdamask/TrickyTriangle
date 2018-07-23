@@ -1,8 +1,7 @@
 import unittest
 import random
 from operator import eq, le, ge
-from TrickyTriangle import Board
-
+from TrickyTriangle import Board, Directions
 
 class TestBoard(unittest.TestCase):
 
@@ -10,82 +9,54 @@ class TestBoard(unittest.TestCase):
         b = Board(5)
         self.assertEqual(sum(len(x) for x in b.map), 15, "Triangle size not correct")
 
-    def test_initial_empty_position_ok(self):
-        counter = 0
-        number_tests = 100
-        number_pass = 0
-        i = 0
-        while i < number_tests:
-            size = random.randint(3, 8)
-            b = Board(size)
-            true_vals = 0
-            for x in b.map:
-                for item in x:
-                    if item[3] == 1:
-                        true_vals += 1
-            if true_vals == 1:
-                number_pass += 1
-            else:
-                break
-            i += 1
-        self.assertEqual(number_pass, number_tests, "More than one board position is empty on init")
+    # def test_initial_empty_position_ok(self):
+    #     counter = 0
+    #     number_tests = 100
+    #     number_pass = 0
+    #     i = 0
+    #     while i < number_tests:
+    #         size = random.randint(3, 8)
+    #         b = Board(size)
+    #         true_vals = 0
+    #         for x in b.map:
+    #             for item in x:
+    #                 if item[3] == 1:
+    #                     true_vals += 1
+    #         if true_vals == 1:
+    #             number_pass += 1
+    #         else:
+    #             break
+    #         i += 1
+    #     self.assertEqual(number_pass, number_tests, "More than one board position is empty on init")
 
 
-class TestChecksSetupA(unittest.TestCase):
-
-    def setUp(self):
-        self.b = Board(7)
-        self.b.create_board_map(1)  # Passing in fixed_position
-        self.index, self.row, self.column, self.occupied_status = 0, 0, 0, 1
-        print("7-triangle: Position 0 empty")
-
-    def test_check_left(self):
-        # Test left
-        self.assertFalse(self.b.check_spot((self.column - 2), ge, 0))
-
-    def test_check_right(self):
-        # Test right
-        self.assertFalse(self.b.check_spot((self.column + 2), le, self.row))
-
-    def test_check_up_left(self):
-        # Test up-left
-        self.assertFalse(self.b.check_spot((self.column - 2), ge, 0) and self.b.check_spot((self.row - 2), ge, 0))
-
-    def test_check_up_right(self):
-        # Test up-right
-        self.assertFalse(self.b.check_spot((self.column - 2), ge, 0) and self.b.check_spot((self.row - 2), ge, 0))
-
-    def test_check_down_left_and_right(self):
-        # Test down-left and down-right (same logic)
-        self.assertTrue(self.row + 2 < self.b.side_length)
-
-
-class TestChecksSetupB(unittest.TestCase):
+class TestChecksSetupC(unittest.TestCase):
 
     def setUp(self):
         self.b = Board(7)
-        self.b.create_board_map(12)  # Passing in fixed_position
-        self.index, self.row, self.column, self.occupied_status = 9, 4, 2, 1
+        self.b.create_board_map()
 
-    def test_check_left(self):
-        # Test left
-        self.assertTrue(self.b.check_spot((self.column - 2), ge, 0))
+    def test_wtf(self):
+        directions = self.b.map[0][0][3]  # Top of triangle
+        x = [self.assertFalse(Directions.LEFT in directions),
+             self.assertFalse(Directions.RIGHT in directions),
+             self.assertFalse(Directions.UP_LEFT in directions),
+             self.assertFalse(Directions.UP_RIGHT in directions),
+             self.assertTrue(Directions.DOWN_LEFT in directions),
+             self.assertTrue(Directions.DOWN_RIGHT in directions)]
 
-    def test_check_right(self):
-        # Test right
-        self.assertTrue(self.b.check_spot((self.column + 2), le, self.row))
+        self.assertEqual(str(x).count("None"), 6, "Expected 6 correct directions")
 
-    def test_check_up_left(self):
-        # Test up-left
-        self.assertTrue(self.b.check_spot((self.column - 2), ge, 0) and self.b.check_spot((self.row - 2), ge, 0))
+        directions = self.b.map[4][2][3] # Position 12 is the only one in a 7-triangle that can move in all 6 positions
+        x = [self.assertTrue(Directions.LEFT in directions),
+             self.assertTrue(Directions.RIGHT in directions),
+             self.assertTrue(Directions.UP_LEFT in directions),
+             self.assertTrue(Directions.UP_RIGHT in directions),
+             self.assertTrue(Directions.DOWN_LEFT in directions),
+             self.assertTrue(Directions.DOWN_RIGHT in directions)]
 
-    def test_check_up_right(self):
-        # Test up-right
-        self.assertTrue(self.b.check_spot((self.column - 2), ge, 0) and self.b.check_spot((self.row - 2), ge, 0))
+        self.assertEqual(str(x).count("None"), 6, "Expected 6 correct directions")
 
-    def test_check_down_left_and_right(self):
-        # Test down-left and down-right (same logic)
-        self.assertTrue(self.row + 2 < self.b.side_length)
 
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+#     unittest.main()
