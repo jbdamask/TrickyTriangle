@@ -1,8 +1,8 @@
 import random
 import logging
-from operator import eq, le, ge
+from operator import eq, le, ge, lt
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 class Board:
     def __init__(self, side_length):
@@ -22,7 +22,7 @@ class Board:
             if fixed_position > self.size:
                 raise Exception('fixed_position variable greater than board size. Try again')
             self.empty_positions.append(fixed_position)
-        print(self.empty_positions[0])
+        log_it(self.empty_positions[0])
         counter = 0
         for r in range(0, self.side_length ):
             row = []
@@ -64,12 +64,9 @@ class Board:
                         if self.check_spot((column + 2), le, row):
                             log_it(RC(row, column) + " up-right ok")
                 # Downward moves are only concerned with rows as column numbers increase
-                if i == 'DOWN-LEFT':
-                    if row + 2 < self.side_length:
+                if i == 'DOWN-LEFT' or i == 'DOWN-RIGHT':
+                    if self.check_spot((row + 2), lt, self.side_length):
                         log_it(RC(row, column) + " down-left ok")
-                if i == 'DOWN-RIGHT':
-                    if row + 2 < self.side_length:
-                        log_it(RC(row, column) + " down-right ok")
 
 
 
@@ -92,8 +89,8 @@ def log_it(message):
 
 
 
-b = Board(5)
-b.dump_map()
+b = Board(7)
+#b.dump_map()
 # Stores individual moves. Originating positions are stored in the odd elements and destinations are in even
 # A full game will in in a list of size (b.size - 1)*2
 moves = []
