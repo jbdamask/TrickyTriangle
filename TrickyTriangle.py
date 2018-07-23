@@ -1,6 +1,5 @@
 import random
 import logging
-from operator import le, ge, lt
 import enum
 
 logging.basicConfig(level=logging.INFO)
@@ -58,22 +57,19 @@ class Board:
     def check_empty(self, position):
         return 1 if position in self.empty_positions else 0
 
-    def check_spot(self, operand_left, operator, operand_right):
-        return operator(operand_left, operand_right)
-
     # For a given triangle hole, determine possible moves
     def check_direction(self, item):
         index, row, column = item
         directions = []
-        if self.check_spot((column - 2), ge, 0):
+        if (column-2) >= 0:
             directions.append(Directions.LEFT)
-        if self.check_spot((column + 2), le, row):
+        if (column + 2) <= row:
             directions.append(Directions.RIGHT)
-        if row >= 2 and self.check_spot((column - 2), ge, 0):
+        if row >= 2 and (column -2) >= 0:
             directions.append(Directions.UP_LEFT)
-        if row >= 2 and self.check_spot((column + 2), le, row):
+        if row >= 2 and (column + 2) <= row:
             directions.append(Directions.UP_RIGHT)
-        if self.check_spot((row + 2), lt, self.side_length):
+        if (row + 2) < self.side_length:
             directions.append(Directions.DOWN_LEFT)
             directions.append(Directions.DOWN_RIGHT)
         return directions
