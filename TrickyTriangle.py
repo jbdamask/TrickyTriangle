@@ -2,6 +2,7 @@ import random
 import logging
 import enum
 import copy
+import sys
 
 logging.basicConfig(level=logging.INFO)
 
@@ -162,39 +163,47 @@ def print_winner(game_moves):
     for g in game_moves:
         print(str(g['Current'] + 1) + " -> " + str(g['Destination'] + 1))
 
-# Side length should be >= 5
-b = Board(5)
-b.add_pegs()
-#b.dump_map()
-#win_ledger = []
 
 #======================#
 # LET THE GAMES BEGIN! #
 #======================#
-games = 1
-print("Starting with empty hole: " + str(b.empty_hole + 1))
-while True:
-    # One iteration equals one game
-    game_moves = []
-    b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
-    for i in range(0, b2.size):
-        moves = {} # For each board state, there's a list of moves to consider
-        for hole in b2.flat_map: # Determine all possible board moves
-            if hole[4]: # If hole has peg, let's see where it can move
-                m = b2.determine_game_moves(hole)
-                for mv in m:
-                    moves[hole[0]] = mv
-        if len(moves) > 0:
-            the_chosen = b2.choose_move(moves)
-            c = moves[the_chosen]
-            game_moves.append(c)
-            b2.move_peg(c)
-            i += 1
-        else:
+def main(args):
+    # Side length should be >= 5
+    arg1 = int(args[1]) if len(args) > 1 else 5
+    arg2 = int(args[2])-1 if len(args) == 3 else None
+    b = Board(arg1)
+    if arg2+1 > b.size:
+        print("You entered " + str(arg2+1) + " for the empty spot but the highest possible value is " + str(b.size))
+        print("Try again!")
+        sys.exit(1)
+    b.add_pegs(arg2)
+    games = 1
+    print("Board size " + str(b.size))
+    print("Starting with empty hole: " + str(b.empty_hole + 1))
+    while True:
+        # One iteration equals one game
+        game_moves = []
+        b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
+        for i in range(0, b2.size):
+            moves = {} # For each board state, there's a list of moves to consider
+            for hole in b2.flat_map: # Determine all possible board moves
+                if hole[4]: # If hole has peg, let's see where it can move
+                    m = b2.determine_game_moves(hole)
+                    for mv in m:
+                        moves[hole[0]] = mv
+            if len(moves) > 0:
+                the_chosen = b2.choose_move(moves)
+                c = moves[the_chosen]
+                game_moves.append(c)
+                b2.move_peg(c)
+                i += 1
+            else:
+                break
+        games += 1
+        if len(game_moves) == b2.max_moves:
+            print("Game " + str(games) + " is a winner!")
+            print_winner(game_moves)
             break
-    games += 1
-    if len(game_moves) == b2.max_moves:
-        print("Game " + str(games) + " is a winner!")
-        print_winner(game_moves)
-        break
 
+if __name__ == "__main__":
+    main(sys.argv)
