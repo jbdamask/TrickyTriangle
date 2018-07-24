@@ -163,7 +163,7 @@ def print_winner(game_moves):
         print(str(g['Current'] + 1) + " -> " + str(g['Destination'] + 1))
 
 # Side length should be >= 5
-b = Board(9)
+b = Board(5)
 b.add_pegs()
 #b.dump_map()
 #win_ledger = []
