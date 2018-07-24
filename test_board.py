@@ -16,7 +16,7 @@ class TestBoard(unittest.TestCase):
         number_pass = 0
         i = 0
         while i < number_tests:
-            side = random.randint(3, 8) # Create boards of different sizes (computed from side length)
+            side = random.randint(3, 15) # Create boards of different sizes (computed from side length)
             board = Board(side)
             empty_position = random.randint(0, board.size-1)
             board.add_pegs(empty_position)
@@ -39,7 +39,7 @@ class TestChecksSetupC(unittest.TestCase):
         self.b = Board(7)
         self.b.create_board_map()
 
-    def test_wtf(self):
+    def test_directions(self):
         directions = self.b.map[0][0][3]  # Top of triangle
         x = [self.assertFalse(Directions.LEFT in directions),
              self.assertFalse(Directions.RIGHT in directions),

@@ -47,6 +47,7 @@ class Board:
 
     # Add pegs to all but one spot in the board
     # TODO This tightly couples holes and pegs. Not sure that's the best approach
+    # Maybe it's ok...get rid of the peg concept and see moves as positional requests
     def add_pegs(self, empty_position=None):
         # Set a random board position as empty
         empty = -1
@@ -61,13 +62,6 @@ class Board:
             for hole in row:
                 position = hole[0]
                 hole.append(0) if position == empty else hole.append(1) # PEG = 1; EMPTY = 0
-
-    def dump_map(self):
-        for i in self.map:
-            print(*i)  # Pythonic syntax to unpack lists
-
-    def check_empty(self, position):
-        return 1 if position in self.empty_positions else 0
 
     # For a given triangle hole, determine possible moves
     def check_direction(self, item):
@@ -85,6 +79,10 @@ class Board:
             directions.append(Directions.DOWN_LEFT)
             directions.append(Directions.DOWN_RIGHT)
         return directions
+
+    def dump_map(self):
+        for i in self.map:
+            print(*i)  # Pythonic syntax to unpack lists
 
 
 # Returns a row / column string for printing
