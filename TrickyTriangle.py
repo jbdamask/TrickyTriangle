@@ -79,7 +79,7 @@ class Board:
         for row in self.map:
             for hole in row:
                 position = hole[0]
-                hole.append(0) if position == empty else hole.append(1)  # PEG = 1; EMPTY = 0
+                hole.append(False) if position == empty else hole.append(True)  # PEG = True; EMPTY = False
         # Flattening the list to make re-positioning easier
         self.flat_map = [item for sublist in self.map for item in sublist]
 
@@ -106,16 +106,20 @@ class Board:
             return index + (row + 2) if adjacent else index + (row + 2) + (row + 3)
 
     # During a game, we figure out the list of actual moves a peg can make
-    def determine_game_moves(self, position):
+    def determine_game_moves(self, hole):
         """Constructs the list of moves a peg can make during a game
 
         :param position: Object at a given spot on the board
         :return: List of possible moves
         """
-        index, row, column, directions, occupied = position
+        index, row, column, directions, occupied = hole
 
         moves = []  # List of position indexes we can move to
-
+        for d in directions:
+            adjacent_hole = self.get_board_position(d, True, hole)
+            destination_hole = self.get_board_position(d, False, hole)
+            if self.flat_map[adjacent_hole][4] and not self.flat_map[destination_hole][4]:
+                moves.append(destination_hole)
         return moves
 
     def choose_move(self):
@@ -128,15 +132,17 @@ class Board:
 
 b = Board(5)
 b.add_pegs()
-#b.dump_map()
+b.dump_map()
 # Stores individual moves. Originating positions are stored in the odd elements and destinations are in even
 # A full game will in in a list of size (b.size - 1)*2
 moves = []
 win_ledger = []  # Stores a list of games (i.e. as many moves lists that end with one peg left as are computed)
 
 # Gameplay
-# Equations to find destination from current position
-# up_left: current - row - (row + 1)
-# up_right: current - row - (row - 1)
-# down_left: current + row + (row + 3)
-# down_right: current + (row + 2) + (row + 3)
+for hole in b.flat_map:
+    if hole[4]: # If hole has peg, let's see if it can move
+        moves = b.determine_game_moves(hole)
+       # print ("Peg at position " + str(hole[0]) + " has " + str(len(moves)) + " possible moves")
+        for m in moves:
+            print("Peg in position " + str(hole[0]) + " can move to position " + str(m))
+

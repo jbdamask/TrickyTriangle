@@ -79,3 +79,16 @@ class TestBoard(unittest.TestCase):
         # Down right
         self.assertEqual(b.get_board_position(hole[3][5], True, hole), 18, "Expected index 18")
         self.assertEqual(b.get_board_position(hole[3][5], False, hole), 25, "Expected index 25")
+
+    def test_determine_game_moves(self):
+        b = Board(5)
+        b.add_pegs(0) # Keep first hole open
+        all_moves = {}
+        for hole in b.flat_map:
+            if hole[4]: # If hole has peg, let's see if it can move
+                moves = b.determine_game_moves(hole)
+                if len(moves) > 0:
+                    all_moves[hole[0]] = moves
+        self.assertTrue(len(all_moves), 2)
+        self.assertEqual(all_moves[3][0], 0)
+        self.assertEqual(all_moves[5][0], 0)
