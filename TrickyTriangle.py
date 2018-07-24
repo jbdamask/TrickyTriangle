@@ -47,7 +47,7 @@ class Board:
                     counter += 1
             self.map.append(row)
 
-    # For a given triangle hole, determine possible moves
+    # Determine the directions each board position can move (these are fixed to the board, not peg)
     def check_direction(self, item):
         index, row, column = item
         directions = []
@@ -64,6 +64,7 @@ class Board:
             directions.append(Directions.DOWN_RIGHT)
         return directions
 
+
     # Add pegs to all but one spot in the board
     # TODO This tightly couples holes and pegs. Not sure that's the best approach
     # Maybe it's ok...get rid of the peg concept and see moves as positional requests
@@ -79,16 +80,63 @@ class Board:
             for hole in row:
                 position = hole[0]
                 hole.append(0) if position == empty else hole.append(1)  # PEG = 1; EMPTY = 0
+        # Flattening the list to make re-positioning easier
+        self.flat_map = [item for sublist in self.map for item in sublist]
+
+    def get_board_position(self, direction, adjacent, hole):
+        """Returns index of desired position
+
+        :param direction: Direction considered
+        :param adjacent: Boolean indicating if we're to look at position in between current and desired
+        :param hole: Hole object
+        :return: Board.flat_map index of requested position
+        """
+        index, row, column, directions, occupied = hole
+        if direction == Directions.LEFT:
+            return index - 1 if adjacent else index - 2
+        if direction == Directions.RIGHT:
+            return index + 1 if adjacent else index + 2
+        if direction == Directions.UP_LEFT:
+            return index - (row + 1) if adjacent else index - row - (row + 1)
+        if direction == Directions.UP_RIGHT:
+            return index - row if adjacent else index - row - (row - 1)
+        if direction == Directions.DOWN_LEFT:
+            return index + (row + 1) if adjacent else index + row + (row + 3)
+        if direction == Directions.DOWN_RIGHT:
+            return index + (row + 2) if adjacent else index + (row + 2) + (row + 3)
+
+    # During a game, we figure out the list of actual moves a peg can make
+    def determine_game_moves(self, position):
+        """Constructs the list of moves a peg can make during a game
+
+        :param position: Object at a given spot on the board
+        :return: List of possible moves
+        """
+        index, row, column, directions, occupied = position
+
+        moves = []  # List of position indexes we can move to
+
+        return moves
+
+    def choose_move(self):
+        pass
 
     def dump_map(self):
         for i in self.map:
             print(*i)  # Pythonic syntax to unpack lists
 
 
-b = Board(3)
+b = Board(5)
 b.add_pegs()
-# b.dump_map()
+#b.dump_map()
 # Stores individual moves. Originating positions are stored in the odd elements and destinations are in even
 # A full game will in in a list of size (b.size - 1)*2
 moves = []
 win_ledger = []  # Stores a list of games (i.e. as many moves lists that end with one peg left as are computed)
+
+# Gameplay
+# Equations to find destination from current position
+# up_left: current - row - (row + 1)
+# up_right: current - row - (row - 1)
+# down_left: current + row + (row + 3)
+# down_right: current + (row + 2) + (row + 3)
