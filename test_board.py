@@ -1,6 +1,5 @@
 import unittest
 import random
-from operator import eq, le, ge
 from TrickyTriangle import Board, Directions
 
 class TestBoard(unittest.TestCase):
@@ -90,5 +89,5 @@ class TestBoard(unittest.TestCase):
                 if len(moves) > 0:
                     all_moves[hole[0]] = moves
         self.assertTrue(len(all_moves), 2)
-        self.assertEqual(all_moves[3][0], 0)
-        self.assertEqual(all_moves[5][0], 0)
+        self.assertEqual(all_moves[3][0]['Destination'], 0)
+        self.assertEqual(all_moves[5][0]['Destination'], 0)

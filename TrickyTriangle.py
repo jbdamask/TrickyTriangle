@@ -2,10 +2,8 @@ import random
 import logging
 import enum
 import copy
-import pprint
 
 logging.basicConfig(level=logging.INFO)
-
 
 def log_it(message):
     logging.debug(message)
@@ -30,10 +28,11 @@ class Board:
         # the number of possible moves is 1 - number of pegs
         self.max_moves = self.size - 2
         self.map = []
-        self.empty_positions = []
+        self.empty_hole = -1
         self.create_board_map()
 
     def create_board_map(self):
+        """Generate the playing board"""
         counter = 0
         for r in range(0, self.side_length):
             row = []
@@ -52,9 +51,13 @@ class Board:
                     counter += 1
             self.map.append(row)
 
-    # Determine the directions each board position can move (these are fixed to the board, not peg)
-    def check_direction(self, item):
-        index, row, column = item
+    def check_direction(self, hole):
+        """Determine the directions each board position can move (these are fixed to the board, not peg)
+
+        :param hole: Virtual hole on playing board
+        :return:
+        """
+        index, row, column = hole
         directions = []
         if (column - 2) >= 0:
             directions.append(Directions.LEFT)
@@ -69,22 +72,22 @@ class Board:
             directions.append(Directions.DOWN_RIGHT)
         return directions
 
-
-    # Add pegs to all but one spot in the board
-    # TODO This tightly couples holes and pegs. Not sure that's the best approach
-    # Maybe it's ok...get rid of the peg concept and see moves as positional requests
     def add_pegs(self, empty_position=None):
+        """Place virtual pegs onto the board
+
+        :param empty_position:
+        """
         if empty_position is None:
-            empty = random.randint(0, self.size - 1)  # Set a random board position as empty
+            self.empty_hole = random.randint(0, self.size - 1)  # Set a random board position as empty
         else:
             if empty_position > self.size:
                 raise Exception('fixed_position variable greater than board size. Try again')
-            empty = empty_position
-        log_it("Empty positions: " + str(empty))
+            self.empty_hole = empty_position
+        log_it("Empty positions: " + str(self.empty_hole))
         for row in self.map:
             for hole in row:
                 position = hole[0]
-                hole.append(False) if position == empty else hole.append(True)  # PEG = True; EMPTY = False
+                hole.append(False) if position == self.empty_hole else hole.append(True)  # PEG = True; EMPTY = False
         # Flattening the list to make re-positioning easier
         self.flat_map = [item for sublist in self.map for item in sublist]
 
@@ -146,29 +149,35 @@ class Board:
         self.flat_map[move["Adjacent"]][4] = False
         self.flat_map[move["Destination"]][4] = True
 
-    def count_empties(self):
-        return self.size - sum(x[4] for x in self.flat_map)
-
     def dump_map(self):
         for i in self.map:
             print(*i)  # Pythonic syntax to unpack lists
 
 
-b = Board(5)
-b.add_pegs()
-b.dump_map()
-win_ledger = []  # Stores a list of games (i.e. as many moves lists that end with one peg left as are computed)
+def print_winner(game_moves):
+    """Show the winning moves
 
-# Gameplay
+    :param game_moves: Dict of recorded moves that won the game
+    """
+    for g in game_moves:
+        print(str(g['Current'] + 1) + " -> " + str(g['Destination'] + 1))
+
+# Side length should be >= 5
+b = Board(9)
+b.add_pegs()
+#b.dump_map()
+#win_ledger = []
+
+#======================#
+# LET THE GAMES BEGIN! #
+#======================#
 games = 1
-while games < 1000:
-#while games < 10:
-    #print("Game " + str(games))
+print("Starting with empty hole: " + str(b.empty_hole + 1))
+while True:
     # One iteration equals one game
     game_moves = []
     b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
     for i in range(0, b2.size):
- #       print("\tMove " + str(i))
         moves = {} # For each board state, there's a list of moves to consider
         for hole in b2.flat_map: # Determine all possible board moves
             if hole[4]: # If hole has peg, let's see where it can move
@@ -183,12 +192,9 @@ while games < 1000:
             i += 1
         else:
             break
-        #print(str(i))
-  #  print("Game " + str(games) + " made " + str(len(game_moves)) + " moves")
-    #pprint.pprint(game_moves)
     games += 1
     if len(game_moves) == b2.max_moves:
         print("Game " + str(games) + " is a winner!")
-        pprint.pprint(game_moves)
+        print_winner(game_moves)
         break
 
