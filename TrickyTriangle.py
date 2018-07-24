@@ -1,6 +1,8 @@
 import random
 import logging
 import enum
+import copy
+import pprint
 
 logging.basicConfig(level=logging.INFO)
 
@@ -116,13 +118,14 @@ class Board:
         :return: List of possible moves
         """
         index, row, column, directions, occupied = hole
-
-        moves = []  # List of position indexes we can move to
+        moves = [] # List of move_dict
         for d in directions:
+            move_dict = {}  # Dict of position indexes: Current, Adjacent, Destination
             adjacent_hole = self.get_board_position(d, True, hole)
             destination_hole = self.get_board_position(d, False, hole)
             if self.flat_map[adjacent_hole][4] and not self.flat_map[destination_hole][4]:
-                moves.append(destination_hole)
+                move_dict.update({"Current": index, "Adjacent": adjacent_hole, "Destination": destination_hole})
+                moves.append(move_dict)
         return moves
 
     def choose_move(self, move_options):
@@ -134,6 +137,18 @@ class Board:
         selection = random.choice(list(move_options))
         return selection
 
+    def move_peg(self, move):
+        """Flips occupied bits for three holes: current, adjacent, destination
+
+        :param move: Dict of the move to make
+        """
+        self.flat_map[move["Current"]][4] = False
+        self.flat_map[move["Adjacent"]][4] = False
+        self.flat_map[move["Destination"]][4] = True
+
+    def count_empties(self):
+        return self.size - sum(x[4] for x in self.flat_map)
+
     def dump_map(self):
         for i in self.map:
             print(*i)  # Pythonic syntax to unpack lists
@@ -141,27 +156,39 @@ class Board:
 
 b = Board(5)
 b.add_pegs()
-#b.dump_map()
-# Stores individual moves. Originating positions are stored in the odd elements and destinations are in even
-# A full game will in in a list of size (b.size - 1)*2
-game_moves = []
+b.dump_map()
 win_ledger = []  # Stores a list of games (i.e. as many moves lists that end with one peg left as are computed)
 
 # Gameplay
-#for i in range(0, b.max_moves):
-for i in range(0, 1):
-    moves = {}
-    for hole in b.flat_map: # Determine all possible board moves
-        if hole[4]: # If hole has peg, let's see where it can move
-            m = b.determine_game_moves(hole)
-            for mv in m:
-                moves[hole[0]] = mv
+games = 1
+while games < 1000:
+#while games < 10:
+    #print("Game " + str(games))
+    # One iteration equals one game
+    game_moves = []
+    b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
+    for i in range(0, b2.size):
+ #       print("\tMove " + str(i))
+        moves = {} # For each board state, there's a list of moves to consider
+        for hole in b2.flat_map: # Determine all possible board moves
+            if hole[4]: # If hole has peg, let's see where it can move
+                m = b2.determine_game_moves(hole)
+                for mv in m:
+                    moves[hole[0]] = mv
+        if len(moves) > 0:
+            the_chosen = b2.choose_move(moves)
+            c = moves[the_chosen]
+            game_moves.append(c)
+            b2.move_peg(c)
+            i += 1
+        else:
+            break
+        #print(str(i))
+  #  print("Game " + str(games) + " made " + str(len(game_moves)) + " moves")
+    #pprint.pprint(game_moves)
+    games += 1
+    if len(game_moves) == b2.max_moves:
+        print("Game " + str(games) + " is a winner!")
+        pprint.pprint(game_moves)
+        break
 
-                # for m in moves:
-        #     print("Peg in position " + str(hole[0]) + " can move to position " + str(m))
-
-    print(moves)
-    the_chosen = b.choose_move(moves)
-    c = {the_chosen: moves[the_chosen]}
-    print(c)
-    i += 1
