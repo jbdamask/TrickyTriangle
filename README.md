@@ -14,3 +14,5 @@ To win the game, you need to have only one peg left on the board!
 * Add threads to handle solving large triangles
 * Come up with different ways to choose the best move (currently random walk)
 * Come up with a way to abort a game if it resembles a previously failed game (checksum for all moves at each position?)
+* I create a 2D list to construct the board, then use a flattened version for moves. Consider doing everything in 1D
+(though this doesn't add any value or even save any time)
