@@ -1,6 +1,6 @@
 # TrickyTriangle
 
-Find the optimum solution to Tricky Triangle of any size (but be prepared to wait if you specify a size > 8)
+Find the optimum solution to Tricky Triangle of (theoretically) any size
 
 ## Synopsis
 Tricky Triangle is a physical game consisting of an equilateral triangle having 15 holes and 14 pegs.
