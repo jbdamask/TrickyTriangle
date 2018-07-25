@@ -3,6 +3,7 @@ import logging
 import enum
 import copy
 import sys
+import threading
 
 logging.basicConfig(level=logging.INFO)
 
@@ -155,6 +156,42 @@ class Board:
             print(*i)  # Pythonic syntax to unpack lists
 
 
+class Game(threading.Thread):
+    def __init__(self, board, lock):
+        threading.Thread.__init__(self)
+        self.game_moves = []
+        self.lock = lock
+        self.b2 = copy.deepcopy(board)
+
+    def run(self):
+        # One iteration equals one game
+        global won
+        global games
+        game_moves = []
+        #b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
+        for i in range(0, self.b2.size):
+            moves = {}  # For each board state, there's a list of moves to consider
+            for hole in self.b2.flat_map:  # Determine all possible board moves
+                if hole[4]:  # If hole has peg, let's see where it can move
+                    m = self.b2.determine_game_moves(hole)
+                    for mv in m:
+                        moves[hole[0]] = mv
+            if len(moves) > 0:
+                the_chosen = self.b2.choose_move(moves)
+                c = moves[the_chosen]
+                game_moves.append(c)
+                self.b2.move_peg(c)
+                i += 1
+            else:
+                break
+                #    games += 1
+        if len(game_moves) == self.b2.max_moves:
+            with self.lock:
+                print("Game " + str(games) + " is a winner!")
+                print_winner(game_moves)
+                won = True
+
+
 def print_winner(game_moves):
     """Show the winning moves
 
@@ -164,46 +201,67 @@ def print_winner(game_moves):
         print(str(g['Current'] + 1) + " -> " + str(g['Destination'] + 1))
 
 
+won = False  # Set to true when an answer is found
+games = 1  # Initialize
+# Resources shared by threads
+lock = threading.RLock()
 #======================#
 # LET THE GAMES BEGIN! #
 #======================#
 def main(args):
+    global won
+    global games
+    global lock
     # Side length should be >= 5
     arg1 = int(args[1]) if len(args) > 1 else 5
     arg2 = int(args[2])-1 if len(args) == 3 else None
     b = Board(arg1)
-    if arg2+1 > b.size:
+    if arg2 != None and arg2+1 > b.size:
         print("You entered " + str(arg2+1) + " for the empty spot but the highest possible value is " + str(b.size))
         print("Try again!")
         sys.exit(1)
     b.add_pegs(arg2)
-    games = 1
+    # games = 1
     print("Board size " + str(b.size))
     print("Starting with empty hole: " + str(b.empty_hole + 1))
+    number_threads = 0
     while True:
-        # One iteration equals one game
-        game_moves = []
-        b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
-        for i in range(0, b2.size):
-            moves = {} # For each board state, there's a list of moves to consider
-            for hole in b2.flat_map: # Determine all possible board moves
-                if hole[4]: # If hole has peg, let's see where it can move
-                    m = b2.determine_game_moves(hole)
-                    for mv in m:
-                        moves[hole[0]] = mv
-            if len(moves) > 0:
-                the_chosen = b2.choose_move(moves)
-                c = moves[the_chosen]
-                game_moves.append(c)
-                b2.move_peg(c)
-                i += 1
-            else:
+        for i in range(0, 100):
+            g = Game(b, lock)
+            with lock:
+                games += 1
+            g.start()
+            number_threads += 1
+        print(str(number_threads) + " threads running")
+        with lock:
+            if won:
+                print(won)
                 break
-        games += 1
-        if len(game_moves) == b2.max_moves:
-            print("Game " + str(games) + " is a winner!")
-            print_winner(game_moves)
-            break
+
+    #     # One iteration equals one game
+    #     game_moves = []
+    #     b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
+    #     for i in range(0, b2.size):
+    #         moves = {} # For each board state, there's a list of moves to consider
+    #         for hole in b2.flat_map: # Determine all possible board moves
+    #             if hole[4]: # If hole has peg, let's see where it can move
+    #                 m = b2.determine_game_moves(hole)
+    #                 for mv in m:
+    #                     moves[hole[0]] = mv
+    #         if len(moves) > 0:
+    #             the_chosen = b2.choose_move(moves)
+    #             c = moves[the_chosen]
+    #             game_moves.append(c)
+    #             b2.move_peg(c)
+    #             i += 1
+    #         else:
+    #             break
+    # #    games += 1
+    #     if len(game_moves) == b2.max_moves:
+    #         print("Game " + str(games) + " is a winner!")
+    #         print_winner(game_moves)
+    #         won = True
+            #break
 
 if __name__ == "__main__":
     main(sys.argv)
