@@ -5,7 +5,7 @@ import copy
 import sys
 import threading
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-10s) %(message)s')
 
 def log_it(message):
     logging.debug(message)
@@ -157,11 +157,12 @@ class Board:
 
 
 class Game(threading.Thread):
-    def __init__(self, board, lock):
+    def __init__(self, board, lock, g_id):
         threading.Thread.__init__(self)
         self.game_moves = []
         self.lock = lock
         self.b2 = copy.deepcopy(board)
+        self.g_id = g_id
 
     def run(self):
         # One iteration equals one game
@@ -225,14 +226,20 @@ def main(args):
     print("Board size " + str(b.size))
     print("Starting with empty hole: " + str(b.empty_hole + 1))
     number_threads = 0
+    threads = []
     while True:
         for i in range(0, 100):
-            g = Game(b, lock)
+            g = Game(b, lock, games)
+            threads.append(g)
             with lock:
                 games += 1
             g.start()
             number_threads += 1
-        print(str(number_threads) + " threads running")
+        for t in threads:
+            if t.is_alive() is False:
+                threads.remove(t)
+        print(str(len(threads)) + " threads running")
+        #print(str(number_threads) + " threads running")
         with lock:
             if won:
                 print(won)
