@@ -4,8 +4,10 @@ import enum
 import copy
 import sys
 import threading
+import hashlib
 
-logging.basicConfig(level=logging.INFO)
+
+logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-10s) %(message)s')
 
 def log_it(message):
     logging.debug(message)
@@ -85,7 +87,7 @@ class Board:
             if empty_position > self.size:
                 raise Exception('fixed_position variable greater than board size. Try again')
             self.empty_hole = empty_position
-        log_it("Empty positions: " + str(self.empty_hole))
+        #log_it("Empty positions: " + str(self.empty_hole))
         for row in self.map:
             for hole in row:
                 position = hole[0]
@@ -133,13 +135,14 @@ class Board:
                 moves.append(move_dict)
         return moves
 
-    def choose_move(self, move_options):
+    def choose_move(self, move_options, algorithm=None):
         """Contains logic for selecting a game move
 
         :param move_options: Dictionary of possible moves for a given game state
         :return selection: Dictionary of selected move to make
         """
-        selection = random.choice(list(move_options))
+        if algorithm is None:
+            selection = random.choice(list(move_options))
         return selection
 
     def move_peg(self, move):
@@ -157,19 +160,32 @@ class Board:
 
 
 class Game(threading.Thread):
-    def __init__(self, board, lock):
+
+    def __init__(self, board, lock, tid):
         threading.Thread.__init__(self)
         self.game_moves = []
         self.lock = lock
         self.b2 = copy.deepcopy(board)
+      #  self.m = hashlib.md5
+        self.tid = tid
 
     def run(self):
         # One iteration equals one game
         global won
         global games
-        game_moves = []
+        global two_thirds_game_hash
         #b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
         for i in range(0, self.b2.size):
+            if i == round(self.b2.size * 0.66, 0):
+                gm = str(self.game_moves)
+                gm_md5 = hashlib.md5(gm.encode()).hexdigest()
+                with lock:
+                    #log_it(gm_md5 + " found. Ending process")
+                    if gm_md5 in two_thirds_game_hash:
+                        return
+                    else:
+                       # print("hash size " + str(len(two_thirds_game_hash)))
+                        two_thirds_game_hash.append(gm_md5)
             moves = {}  # For each board state, there's a list of moves to consider
             for hole in self.b2.flat_map:  # Determine all possible board moves
                 if hole[4]:  # If hole has peg, let's see where it can move
@@ -179,17 +195,26 @@ class Game(threading.Thread):
             if len(moves) > 0:
                 the_chosen = self.b2.choose_move(moves)
                 c = moves[the_chosen]
-                game_moves.append(c)
+                self.game_moves.append(c)
                 self.b2.move_peg(c)
                 i += 1
-            else:
-                break
+            # else:
+            #     break
                 #    games += 1
-        if len(game_moves) == self.b2.max_moves:
+        if len(self.game_moves) == self.b2.max_moves:
             with self.lock:
                 print("Game " + str(games) + " is a winner!")
-                print_winner(game_moves)
+                print_winner(self.game_moves)
                 won = True
+        else:
+            with self.lock:
+                a = {}
+                i = 1
+                for g in self.game_moves:
+                    a[i] = {'From': g['Current'], 'To': g['Destination']}
+                    i += 1
+                games_and_moves[self.tid] = a
+
 
 
 def print_winner(game_moves):
@@ -203,15 +228,20 @@ def print_winner(game_moves):
 
 won = False  # Set to true when an answer is found
 games = 1  # Initialize
-# Resources shared by threads
-lock = threading.RLock()
+games_and_moves = {}
+lock = threading.RLock()  # Resources shared by threads
+two_thirds_game_hash = []  # Keep track of hashed moves
+
 #======================#
 # LET THE GAMES BEGIN! #
 #======================#
 def main(args):
     global won
     global games
+    global games_and_moves
     global lock
+    global two_thirds_game_hash
+
     # Side length should be >= 5
     arg1 = int(args[1]) if len(args) > 1 else 5
     arg2 = int(args[2])-1 if len(args) == 3 else None
@@ -225,18 +255,33 @@ def main(args):
     print("Board size " + str(b.size))
     print("Starting with empty hole: " + str(b.empty_hole + 1))
     number_threads = 0
+    threads = []
     while True:
-        for i in range(0, 100):
-            g = Game(b, lock)
+        for i in range(0, 50):
+            g = Game(b, lock, games)
+            threads.append(g)
             with lock:
                 games += 1
             g.start()
-            number_threads += 1
-        print(str(number_threads) + " threads running")
+            g.join(4) # Wait for 4 seconds
+            #number_threads += 1
+        #print(str(number_threads) + " threads running")
+        for t in threads:
+            if t.is_alive() is False:
+                threads.remove(t)
+        print(str(len(threads)) + " threads running")
         with lock:
             if won:
                 print(won)
                 break
+
+    samies = {}
+    for k, v in games_and_moves.items():
+        hash = hashlib.md5(str(v).encode()).hexdigest()
+        samies.setdefault(hash, []).append(k)
+#        print(str(k) + " : " + str(len(v)) + hashlib.md5(str(v).encode()).hexdigest())
+
+    print(str(samies.keys()))
 
 if __name__ == "__main__":
     main(sys.argv)
