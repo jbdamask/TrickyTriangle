@@ -5,6 +5,7 @@ import copy
 import sys
 import threading
 import hashlib
+from collections import Counter
 
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-10s) %(message)s')
@@ -176,7 +177,7 @@ class Game(threading.Thread):
         global two_thirds_game_hash
         #b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
         for i in range(0, self.b2.size):
-            if i == round(self.b2.size * 0.66, 0):
+            if i == round(self.b2.size * 0.50, 0):
                 gm = str(self.game_moves)
                 gm_md5 = hashlib.md5(gm.encode()).hexdigest()
                 with lock:
@@ -275,13 +276,23 @@ def main(args):
                 print(won)
                 break
 
-    samies = {}
-    for k, v in games_and_moves.items():
-        hash = hashlib.md5(str(v).encode()).hexdigest()
-        samies.setdefault(hash, []).append(k)
-#        print(str(k) + " : " + str(len(v)) + hashlib.md5(str(v).encode()).hexdigest())
 
-    print(str(samies.keys()))
+    samies = []
+    for k, v in games_and_moves.items():
+        # for kk, vv in v.items():
+        #     print(str(kk) + " " + str(vv))
+        #print(str(v))
+        hash = hashlib.md5(str(v).encode()).hexdigest()
+        samies.append(hash)
+    samies.sort()
+    samies_d = Counter(samies)
+
+    print(samies_d)
+#        print(str(k) + " : " + str(len(v)) + hashlib.md5(str(v).encode()).hexdigest())
+    print(str(games_and_moves))
+
+    #print(str(samies))
+ #   print(str(samies.values()))
 
 if __name__ == "__main__":
     main(sys.argv)
