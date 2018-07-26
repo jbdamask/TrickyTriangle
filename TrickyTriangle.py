@@ -239,7 +239,6 @@ def main(args):
             if t.is_alive() is False:
                 threads.remove(t)
         print(str(len(threads)) + " threads running")
-        #print(str(number_threads) + " threads running")
         with lock:
             if won:
                 print(won)
