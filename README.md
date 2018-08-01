@@ -24,6 +24,26 @@ To win the game, you need to have only one peg left on the board!
 The output of this script is an ordered list of moves to make to win the game. Positions are numbered from the top,
 e.g. 1 is the hole at the top of the triangle.
 
+## Example
+
+$ python TrickyTriangle.py
+Board size 15
+Starting with empty hole: 13
+Game 15 is a winner!
+11 -> 13
+14 -> 12
+6 -> 13
+1 -> 6
+4 -> 11
+10 -> 3
+13 -> 4
+3 -> 8
+2 -> 7
+11 -> 4
+4 -> 13
+12 -> 14
+15 -> 13  
+
 ## TODO
 * Come up with different ways to choose the best move (currently random walk)
 * Extend to create a ledger of all possible ways to win a particular board configuration
