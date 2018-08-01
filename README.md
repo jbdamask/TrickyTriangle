@@ -7,11 +7,11 @@ Python 3.7
 
 ## Synopsis
 * Default - Five holes per side, random empty starting position
-** python TrickyTriangle.py
+  - python TrickyTriangle.py
 * Set board size to six holes per side
-** python TrickyTriangle.py 6
+  - python TrickyTriangle.py 6
 * Set board size to eight holes per side and specific hole 1 as empty starting position
-** python TrickyTriangle.py 8 1
+  - python TrickyTriangle.py 8 1
 
 
 ## Description
