@@ -26,23 +26,23 @@ e.g. 1 is the hole at the top of the triangle.
 
 ## Example
 
-$ python TrickyTriangle.py
-Board size 15
-Starting with empty hole: 13
-Game 15 is a winner!
-11 -> 13
-14 -> 12
-6 -> 13
-1 -> 6
-4 -> 11
-10 -> 3
-13 -> 4
-3 -> 8
-2 -> 7
-11 -> 4
-4 -> 13
-12 -> 14
-15 -> 13  
+$ python TrickyTriangle.py <br />
+Board size 15 <br />
+Starting with empty hole: 13 <br />
+Game 15 is a winner! <br />
+11 -> 13 <br />
+14 -> 12 <br />
+6 -> 13 <br />
+1 -> 6 <br />
+4 -> 11 <br />
+10 -> 3 <br />
+13 -> 4 <br />
+3 -> 8 <br />
+2 -> 7 <br />
+11 -> 4 <br />
+4 -> 13 <br />
+12 -> 14 <br />
+15 -> 13 <br />
 
 ## TODO
 * Come up with different ways to choose the best move (currently random walk)
