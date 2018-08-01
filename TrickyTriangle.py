@@ -222,20 +222,12 @@ def main(args):
     b.add_pegs(arg2)
     print("Board size " + str(b.size))
     print("Starting with empty hole: " + str(b.empty_hole + 1))
-    #number_threads = 0
-    threads = []
     while True:
-        for i in range(0, 100):
-            g = Game(b, lock, games)
-            threads.append(g)
-            with lock:
-                games += 1
-            g.start()
-           # number_threads += 1
-        for t in threads:
-            if t.is_alive() is False:
-                threads.remove(t)
-        print(str(len(threads)) + " threads running")
+        g = Game(b, lock, games)
+        with lock:
+            games += 1
+        g.start()
+        print(str(threading.active_count()))
         with lock:
             if won:
                 print(won)
