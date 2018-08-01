@@ -7,8 +7,11 @@ Python 3.7
 
 ## Synopsis
 python TrickyTriangle.py
+
 python TrickyTriangle.py 6
+
 python TrickyTriangle.py 8 1
+
 
 ## Description
 Tricky Triangle is a physical game consisting of an equilateral triangle having 15 holes and 14 pegs.
