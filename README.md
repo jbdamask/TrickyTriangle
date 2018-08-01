@@ -21,6 +21,9 @@ A peg can jump over another peg to an empty spot, removing the jumped peg in the
 The game ends when there are no more possible moves.
 To win the game, you need to have only one peg left on the board!
 
+The output of this script is an ordered list of moves to make to win the game. Positions are numbered from the top,
+e.g. 1 is the hole at the top of the triangle.
+
 ## TODO
 * Come up with different ways to choose the best move (currently random walk)
 * Extend to create a ledger of all possible ways to win a particular board configuration
