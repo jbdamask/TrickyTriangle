@@ -169,7 +169,6 @@ class Game(threading.Thread):
         global won
         global games
         game_moves = []
-        #b2 = copy.deepcopy(b)  # Copy our board for non-destructive game play
         for i in range(0, self.b2.size):
             moves = {}  # For each board state, there's a list of moves to consider
             for hole in self.b2.flat_map:  # Determine all possible board moves
@@ -185,7 +184,6 @@ class Game(threading.Thread):
                 i += 1
             else:
                 break
-                #    games += 1
         if len(game_moves) == self.b2.max_moves:
             with self.lock:
                 print("Game " + str(games) + " is a winner!")
@@ -222,7 +220,6 @@ def main(args):
         print("Try again!")
         sys.exit(1)
     b.add_pegs(arg2)
-    # games = 1
     print("Board size " + str(b.size))
     print("Starting with empty hole: " + str(b.empty_hole + 1))
     number_threads = 0
