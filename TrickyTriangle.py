@@ -227,7 +227,7 @@ def main(args):
         with lock:
             games += 1
         g.start()
-        print(str(threading.active_count()))
+        #print(str(threading.active_count()))
         with lock:
             if won:
                 print(won)
