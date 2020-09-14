@@ -44,8 +44,3 @@ Game 15 is a winner! <br />
 12 -> 14 <br />
 15 -> 13 <br />
 
-## TODO
-* Come up with different ways to choose the best move (currently random walk)
-* Extend to create a ledger of all possible ways to win a particular board configuration
-* I create a 2D list to construct the board, then use a flattened version for moves. Consider doing everything in 1D
-(though this doesn't add any value or even save any time)
