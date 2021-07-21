@@ -1,4 +1,5 @@
 <img src="tricky-triangle.jpg" alt="drawing" width="200"/>
+
 # TrickyTriangle
 
 The Tricky Triangle is a puzzle with a simple goal: hop neighboring pegs over one another until only one is left.
