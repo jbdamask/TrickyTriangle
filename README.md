@@ -1,6 +1,11 @@
+<img src="tricky-triangle.jpg" alt="drawing" width="200"/>
 # TrickyTriangle
 
-Find the optimum solution to Tricky Triangle of (theoretically) any size
+The Tricky Triangle is a puzzle with a simple goal: hop neighboring pegs over one another until only one is left.
+
+It's really frustrating so good luck winning it. Much easier to write some code to solve it for you!
+
+This code finds the solution to a Tricky Triangle of (theoretically) any size. It works fine with a normal board size of 15 holes but starts to choke around boards of 45 holes.
 
 ## Requirements
 Python 3.7
@@ -21,8 +26,8 @@ A peg can jump over another peg to an empty spot, removing the jumped peg in the
 The game ends when there are no more possible moves.
 To win the game, you need to have only one peg left on the board!
 
-The output of this script is an ordered list of moves to make to win the game. Positions are numbered from the top,
-e.g. 1 is the hole at the top of the triangle.
+The output of this script is an ordered list of moves that wins the game. Positions are numbered from the top,
+e.g. 1 is the hole at the top of the triangle and 15 is the hole at the bottom right.
 
 ## Example
 
@@ -44,3 +49,5 @@ Game 15 is a winner! <br />
 12 -> 14 <br />
 15 -> 13 <br />
 
+## TODO
+* Improve how moves are selected so that this code can scale to a board of any size
